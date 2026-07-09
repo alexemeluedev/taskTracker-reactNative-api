@@ -24,6 +24,8 @@ const DEV_ANDROID_EMULATOR = "http://10.0.2.2:5001/api";
 
 // 1. Check if it is a physical device (iPhone or Android)
 const API_URL_SELECTOR = () => {
+  // FORCE PROD: Uncomment the line below to point your emulator directly to Render
+  return PROD;
   const isRealDevice =
     Device.isDevice &&
     Device.brand !== null &&
