@@ -85,27 +85,35 @@ export const useTransactions = (userId) => {
 
   const updateTransaction = async (id, updatedData) => {
     try {
-      const response = await fetch(`${API_URL}/transactions/${id}`, {
+      const targetUrl = `${API_URL}/transactions/${id}`;
+
+      const response = await fetch(targetUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        // Explicitly wrap properties to secure their object data types
         body: JSON.stringify({
           title: updatedData.title,
-          amount: updatedData.amount,
+          amount: Number(updatedData.amount),
           category: updatedData.category,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorText = await response
+          .text()
+          .catch(() => "Unknown error body");
+
+        // THIS WILL DISPLAY THE REAL BACKEND PROBLEM DIRECTLY ON YOUR DEVICE SCREEN
+        alert(
+          `Backend Status: ${response.status}\nURL: ${targetUrl}\nResponse: ${errorText}`,
+        );
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error("Hook transmission error:", error);
+      alert(`Network Catch Block Error: ${error.message}`);
       return false;
     }
   };
