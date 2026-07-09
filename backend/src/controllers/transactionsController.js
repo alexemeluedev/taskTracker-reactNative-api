@@ -88,30 +88,29 @@ export async function updateTransaction(req, res) {
     const { id } = req.params;
     const { title, amount, category } = req.body;
 
-    // 1. Validation guardrails
-    if (isNaN(parseInt(id))) {
+    const numericId = Number.parseInt(id, 10);
+
+    if (!Number.isInteger(numericId) || numericId <= 0) {
       return res.status(400).json({ message: "Invalid transaction ID" });
     }
 
-    if (!title || !category || amount === undefined) {
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+    const trimmedCategory = typeof category === "string" ? category.trim() : "";
+    const parsedAmount = Number(amount);
+
+    if (!trimmedTitle || !trimmedCategory || !Number.isFinite(parsedAmount)) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // 2. FORCE PARSE THE ID STRING TO A NUMBER SO POSTGRESQL MATCHES IT
-    const numericId = Number(id);
-
     const result = await sql`
       UPDATE transactions
-      SET title = ${title.trim()}, amount = ${Number(amount)}, category = ${category}
+      SET title = ${trimmedTitle}, amount = ${parsedAmount}, category = ${trimmedCategory}
       WHERE id = ${numericId}
       RETURNING *
     `;
 
-    // 3. Handle data missing errors
     if (!result || result.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Transaction not found in database" });
+      return res.status(404).json({ message: "Transaction not found" });
     }
 
     res.status(200).json(result[0]);

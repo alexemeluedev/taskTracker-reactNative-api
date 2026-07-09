@@ -84,11 +84,14 @@ export default function TransactionDetailPage() {
       return;
     }
 
-    // Ensure we parse the base number safely
-    const parsedAmount = Math.abs(parseFloat(amount)) || 0;
+    const parsedAmount = Number.parseFloat(amount);
+    if (!Number.isFinite(parsedAmount)) {
+      Alert.alert("Invalid amount", "Please enter a valid number.");
+      return;
+    }
 
-    // If the category is NOT Income, save it as a negative number for expenses
-    const finalAmount = category === "Income" ? parsedAmount : -parsedAmount;
+    const normalizedAmount = Math.abs(parsedAmount) || 0;
+    const finalAmount = category === "Income" ? normalizedAmount : -normalizedAmount;
 
     setIsSaving(true);
     try {
@@ -96,17 +99,10 @@ export default function TransactionDetailPage() {
         title: title.trim(),
         amount: finalAmount,
         category,
-        // Optional: Include explicit type if your Express backend requires it
-        type: category === "Income" ? "income" : "expense",
       });
 
       if (success) {
         setIsEditing(false);
-      } else {
-        Alert.alert(
-          "Update Failed",
-          "The backend server rejected the update parameters.",
-        );
       }
     } catch (error) {
       console.error("Failed updating transaction payload:", error);

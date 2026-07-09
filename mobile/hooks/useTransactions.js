@@ -85,8 +85,13 @@ export const useTransactions = (userId) => {
 
   const updateTransaction = async (id, updatedData) => {
     try {
-      const targetUrl = `${API_URL}/transactions/${id}`;
+      const numericId = Number.parseInt(id, 10);
+      if (!Number.isInteger(numericId) || numericId <= 0) {
+        Alert.alert("Error", "Invalid transaction id");
+        return false;
+      }
 
+      const targetUrl = `${API_URL}/transactions/${numericId}`;
       const response = await fetch(targetUrl, {
         method: "PUT",
         headers: {
@@ -100,37 +105,45 @@ export const useTransactions = (userId) => {
       });
 
       if (!response.ok) {
-        const errorText = await response
-          .text()
-          .catch(() => "Unknown error body");
-
-        // THIS WILL DISPLAY THE REAL BACKEND PROBLEM DIRECTLY ON YOUR DEVICE SCREEN
-        alert(
-          `Backend Status: ${response.status}\nURL: ${targetUrl}\nResponse: ${errorText}`,
+        const errorText = await response.text().catch(() => "Unknown error body");
+        Alert.alert(
+          "Update failed",
+          `Status ${response.status}\n${errorText || "The server rejected the update request."}`,
         );
         return false;
       }
 
+      await loadData();
+      Alert.alert("Success", "Transaction updated successfully");
       return true;
     } catch (error) {
-      alert(`Network Catch Block Error: ${error.message}`);
+      Alert.alert("Error", error.message || "Unable to update transaction");
       return false;
     }
   };
 
   const deleteTransaction = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/transactions/${id}`, {
+      const numericId = Number.parseInt(id, 10);
+      if (!Number.isInteger(numericId) || numericId <= 0) {
+        Alert.alert("Error", "Invalid transaction id");
+        return false;
+      }
+
+      const response = await fetch(`${API_URL}/transactions/${numericId}`, {
         method: "DELETE",
       });
-      if (!response.ok) throw new Error("Failed to delete transaction");
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error body");
+        throw new Error(errorText || "Failed to delete transaction");
+      }
 
       await loadData();
       Alert.alert("Success", "Transaction deleted successfully");
       return true;
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error.message || "Unable to delete transaction");
       return false;
     }
   };
