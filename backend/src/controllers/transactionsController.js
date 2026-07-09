@@ -41,6 +41,11 @@ export async function updateTransaction(req, res) {
   try {
     const { id } = req.params;
     const { title, amount, category } = req.body;
+    // ADD THESE LOGS HERE TO SEE EXACTLY WHAT IS SENDING
+    console.log("=== INCOMING UPDATE REQUEST ===");
+    console.log("REQ PARAMS ID:", id);
+    console.log("REQ BODY TYPE:", typeof req.body, "BODY DATA:", req.body);
+    console.log("FIELDS:", { title, amount, category });
 
     if (isNaN(parseInt(id))) {
       return res.status(400).json({ message: "Invalid transaction ID" });
@@ -63,6 +68,7 @@ export async function updateTransaction(req, res) {
 
     res.status(200).json(result[0]);
   } catch (error) {
+    console.error("Backend update error details:", error); // Keep this log active
     res.status(500).json({ message: "Internal server error" });
   }
 }
