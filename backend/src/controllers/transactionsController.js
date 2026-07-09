@@ -37,48 +37,86 @@ export async function createTransaction(req, res) {
   }
 }
 
+// export async function updateTransaction(req, res) {
+//   try {
+//     const { id } = req.params;
+//     const { title, amount, category } = req.body;
+
+//     // // Fallback parsing to ensure fields aren't blank
+//     // const title = req.body?.title;
+//     // const category = req.body?.category;
+//     // const amount = req.body?.amount;
+
+//     // ADD THESE LOGS HERE TO SEE EXACTLY WHAT IS SENDING
+//     console.log("=== INCOMING UPDATE REQUEST ===");
+//     console.log("REQ PARAMS ID:", id);
+//     console.log("REQ BODY TYPE:", typeof req.body, "BODY DATA:", req.body);
+//     console.log("FIELDS:", { title, amount, category });
+
+//     if (isNaN(parseInt(id))) {
+//       return res.status(400).json({ message: "Invalid transaction ID" });
+//     }
+
+//     // if (!title || !category || amount === undefined) {
+//     //   return res.status(400).json({ message: "All fields are required" });
+//     // }
+//     // A more bulletproof validation checking structure
+//     if (!title || !category || amount === undefined || amount === null) {
+//       return res.status(400).json({ message: "All fields are required" });
+//     }
+
+//     const result = await sql`
+//       UPDATE transactions
+//       SET title = ${title}, amount = ${amount}, category = ${category}
+//       WHERE id = ${id}
+//       RETURNING *
+//     `;
+
+//     if (result.length === 0) {
+//       return res.status(404).json({ message: "Transaction not found" });
+//     }
+
+//     res.status(200).json(result[0]);
+//   } catch (error) {
+//     console.error("Backend update error details:", error); // Keep this log active
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// }
+
 export async function updateTransaction(req, res) {
   try {
     const { id } = req.params;
     const { title, amount, category } = req.body;
 
-    // // Fallback parsing to ensure fields aren't blank
-    // const title = req.body?.title;
-    // const category = req.body?.category;
-    // const amount = req.body?.amount;
-
-    // ADD THESE LOGS HERE TO SEE EXACTLY WHAT IS SENDING
-    console.log("=== INCOMING UPDATE REQUEST ===");
-    console.log("REQ PARAMS ID:", id);
-    console.log("REQ BODY TYPE:", typeof req.body, "BODY DATA:", req.body);
-    console.log("FIELDS:", { title, amount, category });
-
+    // 1. Validation guardrails
     if (isNaN(parseInt(id))) {
       return res.status(400).json({ message: "Invalid transaction ID" });
     }
 
-    // if (!title || !category || amount === undefined) {
-    //   return res.status(400).json({ message: "All fields are required" });
-    // }
-    // A more bulletproof validation checking structure
-    if (!title || !category || amount === undefined || amount === null) {
+    if (!title || !category || amount === undefined) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // 2. FORCE PARSE THE ID STRING TO A NUMBER SO POSTGRESQL MATCHES IT
+    const numericId = Number(id);
+
     const result = await sql`
       UPDATE transactions
-      SET title = ${title}, amount = ${amount}, category = ${category}
-      WHERE id = ${id}
+      SET title = ${title.trim()}, amount = ${Number(amount)}, category = ${category}
+      WHERE id = ${numericId}
       RETURNING *
     `;
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "Transaction not found" });
+    // 3. Handle data missing errors
+    if (!result || result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Transaction not found in database" });
     }
 
     res.status(200).json(result[0]);
   } catch (error) {
-    console.error("Backend update error details:", error); // Keep this log active
+    console.error("Database update error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
