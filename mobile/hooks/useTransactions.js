@@ -61,24 +61,51 @@ export const useTransactions = (userId) => {
     }
   }, [fetchTransactions, fetchSummary, userId]);
 
-  const updateTransaction = async (id, payload) => {
+  // const updateTransaction = async (id, payload) => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/transactions/${id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(payload),
+  //     });
+
+  //     if (!response.ok) throw new Error("Failed to update transaction");
+
+  //     await loadData();
+  //     Alert.alert("Success", "Transaction updated successfully");
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error updating transaction:", error);
+  //     Alert.alert("Error", error.message);
+  //     return false;
+  //   }
+  // };
+
+  const updateTransaction = async (id, updatedData) => {
     try {
       const response = await fetch(`${API_URL}/transactions/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        // Explicitly wrap properties to secure their object data types
+        body: JSON.stringify({
+          title: updatedData.title,
+          amount: updatedData.amount,
+          category: updatedData.category,
+        }),
       });
 
-      if (!response.ok) throw new Error("Failed to update transaction");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        return false;
+      }
 
-      await loadData();
-      Alert.alert("Success", "Transaction updated successfully");
       return true;
     } catch (error) {
-      console.error("Error updating transaction:", error);
-      Alert.alert("Error", error.message);
+      console.error("Hook transmission error:", error);
       return false;
     }
   };

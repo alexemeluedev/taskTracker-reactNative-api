@@ -41,6 +41,12 @@ export async function updateTransaction(req, res) {
   try {
     const { id } = req.params;
     const { title, amount, category } = req.body;
+
+    // // Fallback parsing to ensure fields aren't blank
+    // const title = req.body?.title;
+    // const category = req.body?.category;
+    // const amount = req.body?.amount;
+
     // ADD THESE LOGS HERE TO SEE EXACTLY WHAT IS SENDING
     console.log("=== INCOMING UPDATE REQUEST ===");
     console.log("REQ PARAMS ID:", id);
@@ -51,7 +57,11 @@ export async function updateTransaction(req, res) {
       return res.status(400).json({ message: "Invalid transaction ID" });
     }
 
-    if (!title || !category || amount === undefined) {
+    // if (!title || !category || amount === undefined) {
+    //   return res.status(400).json({ message: "All fields are required" });
+    // }
+    // A more bulletproof validation checking structure
+    if (!title || !category || amount === undefined || amount === null) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -72,46 +82,6 @@ export async function updateTransaction(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
-
-// new code
-
-// const updateTransaction = async (id, updatedData) => {
-//   try {
-//     // 1. Double check that you are sending the correct ID in the URL path
-//     console.log(`Sending PUT request to: ${API_URL}/transactions/${id}`);
-//     console.log("Payload data:", updatedData);
-
-//     const response = await fetch(`${API_URL}/transactions/${id}`, {
-//       method: "PUT", // Make sure this matches your backend route method
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(updatedData),
-//     });
-
-//     // 2. If the backend returns an error code (400, 404, 500), read the message
-//     if (!response.ok) {
-//       const errorData = await response.json().catch(() => ({}));
-//       console.log("=== BACKEND REJECTION DETAILS ===");
-//       console.log("Status Code:", response.status);
-//       console.log(
-//         "Error Message from Server:",
-//         errorData.message || "No message provided",
-//       );
-//       return false;
-//     }
-
-//     const data = await response.json();
-//     console.log("Transaction updated successfully on server:", data);
-//     return true;
-//   } catch (error) {
-//     console.error(
-//       "Network or implementation error in useTransactions hook:",
-//       error,
-//     );
-//     return false;
-//   }
-// };
 
 export async function deleteTransaction(req, res) {
   try {
