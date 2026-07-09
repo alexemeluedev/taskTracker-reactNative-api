@@ -51,6 +51,30 @@ export default function TransactionDetailPage() {
   const isIncome = parseFloat(amount) > 0;
   const iconName = CATEGORY_ICONS[category] || "pricetag-outline";
 
+  // const handleSave = async () => {
+  //   if (!title.trim()) {
+  //     Alert.alert(
+  //       "Missing title",
+  //       "Please enter a title for this transaction.",
+  //     );
+  //     return;
+  //   }
+
+  //   setIsSaving(true);
+  //   const success = await updateTransaction(params.id, {
+  //     title: title.trim(),
+  //     amount: Number(amount),
+  //     category,
+  //   });
+  //   setIsSaving(false);
+
+  //   if (success) {
+  //     setIsEditing(false);
+  //   }
+  // };
+
+  // updated code
+
   const handleSave = async () => {
     if (!title.trim()) {
       Alert.alert(
@@ -60,16 +84,35 @@ export default function TransactionDetailPage() {
       return;
     }
 
-    setIsSaving(true);
-    const success = await updateTransaction(params.id, {
-      title: title.trim(),
-      amount: Number(amount),
-      category,
-    });
-    setIsSaving(false);
+    // Ensure we parse the base number safely
+    const parsedAmount = Math.abs(parseFloat(amount)) || 0;
 
-    if (success) {
-      setIsEditing(false);
+    // If the category is NOT Income, save it as a negative number for expenses
+    const finalAmount = category === "Income" ? parsedAmount : -parsedAmount;
+
+    setIsSaving(true);
+    try {
+      const success = await updateTransaction(params.id, {
+        title: title.trim(),
+        amount: finalAmount,
+        category,
+        // Optional: Include explicit type if your Express backend requires it
+        type: category === "Income" ? "income" : "expense",
+      });
+
+      if (success) {
+        setIsEditing(false);
+      } else {
+        Alert.alert(
+          "Update Failed",
+          "The backend server rejected the update parameters.",
+        );
+      }
+    } catch (error) {
+      console.error("Failed updating transaction payload:", error);
+      Alert.alert("Error", "An unexpected error occurred while saving.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
