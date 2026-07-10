@@ -87,6 +87,7 @@ export async function updateTransaction(req, res) {
   try {
     const { id } = req.params;
     const { title, amount, category } = req.body;
+    console.log(req.body, id);
 
     // 1. Validation guardrails
     if (isNaN(parseInt(id))) {
