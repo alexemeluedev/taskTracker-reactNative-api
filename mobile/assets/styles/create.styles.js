@@ -37,6 +37,15 @@ export const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: "700",
   },
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
   card: {
     backgroundColor: COLORS.surface,
     margin: 16,
@@ -178,6 +187,43 @@ export const styles = StyleSheet.create({
     color: COLORS.muted,
     fontSize: 13,
     lineHeight: 18,
+  },
+  presetsSection: {
+    marginBottom: 18,
+  },
+  presetsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  presetRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  presetButton: {
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  presetButtonText: {
+    color: COLORS.text,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  draftHint: {
+    marginTop: 8,
+    color: COLORS.muted,
+    fontSize: 12,
+  },
+  clearButtonText: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: "700",
   },
   sectionTitle: {
     fontSize: 17,

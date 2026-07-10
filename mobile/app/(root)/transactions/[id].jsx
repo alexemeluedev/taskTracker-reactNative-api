@@ -13,6 +13,7 @@ import { styles } from "../../../assets/styles/home.styles";
 import { COLORS } from "../../../constants/colors";
 import { formatDateTime } from "../../../lib/utils";
 import { useTransactions } from "../../../hooks/useTransactions";
+import { CustomAlertModal } from "../../../components/CustomAlertModal";
 
 const formatMoney = (value) =>
   new Intl.NumberFormat("en-US", {
@@ -42,6 +43,7 @@ export default function TransactionDetailPage() {
   const [category, setCategory] = useState(params.category || "Other");
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     setTitle(params.title || "");
@@ -118,36 +120,32 @@ export default function TransactionDetailPage() {
   };
 
   const handleDelete = () => {
-    Alert.alert("Delete transaction", "This action cannot be undone.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          if (!params.id) {
-            Alert.alert("Error", "Unable to locate this transaction.");
-            return;
-          }
+    setShowDeleteDialog(true);
+  };
 
-          setIsDeleting(true);
-          try {
-            const success = await deleteTransaction(params.id);
-            if (success) {
-              if (router.canGoBack?.()) {
-                router.back();
-              } else {
-                router.replace("/");
-              }
-            }
-          } catch (error) {
-            console.error("Delete failed:", error);
-            Alert.alert("Error", "Unable to delete this transaction right now.");
-          } finally {
-            setIsDeleting(false);
-          }
-        },
-      },
-    ]);
+  const confirmDelete = async () => {
+    if (!params.id) {
+      Alert.alert("Error", "Unable to locate this transaction.");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const success = await deleteTransaction(params.id);
+      if (success) {
+        if (router.canGoBack?.()) {
+          router.back();
+        } else {
+          router.replace("/");
+        }
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+      Alert.alert("Error", "Unable to delete this transaction right now.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   return (
@@ -297,6 +295,17 @@ export default function TransactionDetailPage() {
           </View>
         </View>
       </ScrollView>
+
+      <CustomAlertModal
+        visible={showDeleteDialog}
+        title="Delete transaction"
+        message="This action cannot be undone."
+        buttons={[
+          { text: "Cancel", onPress: () => setShowDeleteDialog(false) },
+          { text: "Delete", onPress: confirmDelete, style: "destructive" },
+        ]}
+        onClose={() => setShowDeleteDialog(false)}
+      />
     </View>
   );
 }

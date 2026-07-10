@@ -1,7 +1,6 @@
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import {
-  Alert,
   FlatList,
   RefreshControl,
   Text,
@@ -20,6 +19,7 @@ import { BalanceCard } from "../../components/BalanceCard";
 import { TransactionItem } from "../../components/TransactionItem";
 import NoTransactionsFound from "../../components/NoTransactionsFound";
 import BrandMark from "../../components/BrandMark";
+import { CustomAlertModal } from "../../components/CustomAlertModal";
 
 export default function Page() {
   const { user } = useUser();
@@ -30,6 +30,7 @@ export default function Page() {
     useTransactions(user?.id);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [confirmDelete, setConfirmDelete] = useState({ visible: false, id: null });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -49,23 +50,15 @@ export default function Page() {
   );
 
   const handleDelete = (id) => {
-    Alert.alert(
-      "Delete Transaction",
-      "Are you sure you want to delete this transaction?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            const success = await deleteTransaction(id);
-            if (success) {
-              await loadData();
-            }
-          },
-        },
-      ],
-    );
+    setConfirmDelete({ visible: true, id });
+  };
+
+  const confirmDeleteAction = async () => {
+    const success = await deleteTransaction(confirmDelete.id);
+    if (success) {
+      await loadData();
+    }
+    setConfirmDelete({ visible: false, id: null });
   };
 
   const filteredTransactions = useMemo(() => {
@@ -151,7 +144,10 @@ export default function Page() {
                   onPress={() => setSelectedFilter(filter.key)}
                 >
                   <Text
-                    style={[styles.filterChipText, active && styles.filterChipTextActive]}
+                    style={[
+                      styles.filterChipText,
+                      active && styles.filterChipTextActive,
+                    ]}
                   >
                     {filter.label}
                   </Text>
@@ -191,6 +187,17 @@ export default function Page() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+      />
+
+      <CustomAlertModal
+        visible={confirmDelete.visible}
+        title="Delete transaction"
+        message="This action cannot be undone."
+        buttons={[
+          { text: "Cancel", onPress: () => setConfirmDelete({ visible: false, id: null }) },
+          { text: "Delete", onPress: confirmDeleteAction, style: "destructive" },
+        ]}
+        onClose={() => setConfirmDelete({ visible: false, id: null })}
       />
     </View>
   );

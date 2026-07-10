@@ -1,23 +1,31 @@
 import { useClerk } from "@clerk/clerk-expo";
-import { Alert, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { styles } from "../assets/styles/home.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../constants/colors";
+import { CustomAlertModal } from "./CustomAlertModal";
+import { useState } from "react";
 
 export const SignOutButton = () => {
-  // Use `useClerk()` to access the `signOut()` function
   const { signOut } = useClerk();
-
-  const handleSignOut = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Logout", style: "destructive", onPress: signOut },
-    ]);
-  };
+  const [showConfirm, setShowConfirm] = useState(false);
 
   return (
-    <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-      <Ionicons name="log-out-outline" size={18} color={COLORS.text} />
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => setShowConfirm(true)}>
+        <Ionicons name="log-out-outline" size={18} color={COLORS.text} />
+      </TouchableOpacity>
+
+      <CustomAlertModal
+        visible={showConfirm}
+        title="Logout"
+        message="Are you sure you want to sign out?"
+        buttons={[
+          { text: "Cancel", onPress: () => setShowConfirm(false) },
+          { text: "Logout", onPress: signOut, style: "destructive" },
+        ]}
+        onClose={() => setShowConfirm(false)}
+      />
+    </>
   );
 };
