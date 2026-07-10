@@ -121,13 +121,35 @@ export const useTransactions = (userId) => {
 
   const deleteTransaction = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/transactions/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete transaction");
+      const normalizedId = String(id ?? "").trim();
 
-      await loadData();
-      Alert.alert("Success", "Transaction deleted successfully");
+      if (!normalizedId || Number.isNaN(Number(normalizedId))) {
+        throw new Error("Invalid transaction id");
+      }
+
+      const response = await fetch(
+        `${API_URL}/transactions/${encodeURIComponent(normalizedId)}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      let errorMessage = "Failed to delete transaction";
+      try {
+        const errorBody = await response.json();
+        errorMessage = errorBody?.message || errorMessage;
+      } catch {
+        // Ignore parse errors and keep the default message.
+      }
+
+      if (!response.ok) {
+        throw new Error(errorMessage);
+      }
+
+      if (userId) {
+        await loadData();
+      }
+
       return true;
     } catch (error) {
       console.error("Error deleting transaction:", error);

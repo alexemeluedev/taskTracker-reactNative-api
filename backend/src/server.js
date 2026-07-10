@@ -23,7 +23,10 @@ app.use(express.json());
 // });
 
 const PORT = process.env.PORT || 5001;
-
+// Lightweight endpoint to keep the free Render instance awake
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });

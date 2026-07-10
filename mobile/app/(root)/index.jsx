@@ -5,12 +5,13 @@ import {
   FlatList,
   RefreshControl,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SignOutButton } from "@/components/SignOutButton";
 import { useTransactions } from "../../hooks/useTransactions";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import PageLoader from "../../components/PageLoader";
 import { styles } from "../../assets/styles/home.styles";
@@ -27,6 +28,8 @@ export default function Page() {
 
   const { transactions, summary, isLoading, loadData, deleteTransaction } =
     useTransactions(user?.id);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -54,11 +57,35 @@ export default function Page() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => deleteTransaction(id),
+          onPress: async () => {
+            const success = await deleteTransaction(id);
+            if (success) {
+              await loadData();
+            }
+          },
         },
       ],
     );
   };
+
+  const filteredTransactions = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return transactions.filter((item) => {
+      const matchesQuery =
+        !query ||
+        item.title?.toLowerCase().includes(query) ||
+        item.category?.toLowerCase().includes(query);
+
+      const amount = Number(item.amount || 0);
+      const matchesFilter =
+        selectedFilter === "all" ||
+        (selectedFilter === "income" && amount > 0) ||
+        (selectedFilter === "expense" && amount < 0);
+
+      return matchesQuery && matchesFilter;
+    });
+  }, [searchQuery, selectedFilter, transactions]);
 
   if (isLoading && !refreshing) return <PageLoader />;
 
@@ -97,6 +124,42 @@ export default function Page() {
         <View style={styles.transactionsHeaderContainer}>
           <Text style={styles.sectionTitle}>Recent activity</Text>
         </View>
+
+        <View style={styles.searchSection}>
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search-outline" size={18} color={"#8b93a7"} />
+            <TextInput
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search transactions"
+              placeholderTextColor="#8b93a7"
+            />
+          </View>
+
+          <View style={styles.filterRow}>
+            {[
+              { key: "all", label: "All" },
+              { key: "income", label: "Income" },
+              { key: "expense", label: "Expenses" },
+            ].map((filter) => {
+              const active = selectedFilter === filter.key;
+              return (
+                <TouchableOpacity
+                  key={filter.key}
+                  style={[styles.filterChip, active && styles.filterChipActive]}
+                  onPress={() => setSelectedFilter(filter.key)}
+                >
+                  <Text
+                    style={[styles.filterChipText, active && styles.filterChipTextActive]}
+                  >
+                    {filter.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
       </View>
 
       {/* FlatList is a performant way to render long lists in React Native. */}
@@ -104,7 +167,7 @@ export default function Page() {
       <FlatList
         style={styles.transactionsList}
         contentContainerStyle={styles.transactionsListContent}
-        data={transactions}
+        data={filteredTransactions}
         renderItem={({ item }) => (
           <TransactionItem
             item={item}

@@ -41,6 +41,7 @@ export default function TransactionDetailPage() {
   const [amount, setAmount] = useState(String(params.amount || "0"));
   const [category, setCategory] = useState(params.category || "Other");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setTitle(params.title || "");
@@ -123,9 +124,26 @@ export default function TransactionDetailPage() {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-          const success = await deleteTransaction(params.id);
-          if (success) {
-            router.back();
+          if (!params.id) {
+            Alert.alert("Error", "Unable to locate this transaction.");
+            return;
+          }
+
+          setIsDeleting(true);
+          try {
+            const success = await deleteTransaction(params.id);
+            if (success) {
+              if (router.canGoBack?.()) {
+                router.back();
+              } else {
+                router.replace("/");
+              }
+            }
+          } catch (error) {
+            console.error("Delete failed:", error);
+            Alert.alert("Error", "Unable to delete this transaction right now.");
+          } finally {
+            setIsDeleting(false);
           }
         },
       },
@@ -270,8 +288,11 @@ export default function TransactionDetailPage() {
             <TouchableOpacity
               style={styles.detailActionButton}
               onPress={handleDelete}
+              disabled={isDeleting}
             >
-              <Text style={styles.detailActionText}>Delete</Text>
+              <Text style={styles.detailActionText}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
