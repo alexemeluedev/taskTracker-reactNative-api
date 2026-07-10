@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import {
   Alert,
   ScrollView,
@@ -159,7 +160,7 @@ export default function TransactionDetailPage() {
       </View>
 
       <ScrollView contentContainerStyle={styles.detailContent}>
-        <View style={styles.detailCard}>
+        <Animated.View entering={FadeInUp.duration(240)} exiting={FadeOutDown.duration(180)} style={styles.detailCard}>
           <View style={styles.detailIconContainer}>
             <Ionicons
               name={iconName}
@@ -293,7 +294,7 @@ export default function TransactionDetailPage() {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       <CustomAlertModal

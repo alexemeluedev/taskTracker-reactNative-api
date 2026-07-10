@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
 import { useEffect, useState } from "react";
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { API_URL } from "../../constants/api";
 import { styles } from "../../assets/styles/create.styles";
 import { COLORS } from "../../constants/colors";
@@ -286,7 +287,7 @@ const CreateScreen = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.card}>
+          <Animated.View entering={FadeInUp.duration(240)} exiting={FadeOutDown.duration(180)} style={styles.card}>
             <View style={styles.quickEntryHeader}>
               <View>
                 <Text style={styles.quickEntryLabel}>Quick capture</Text>
@@ -468,7 +469,7 @@ const CreateScreen = () => {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
 
