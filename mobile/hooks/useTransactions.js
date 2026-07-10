@@ -19,7 +19,8 @@ export const useTransactions = (userId) => {
   // useCallback is used for performance reasons, it will memoize the function
   const fetchTransactions = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/transactions/${userId}`);
+      // Change your GET transaction history fetch line to match the new prefix layou
+      const response = await fetch(`${API_URL}/transactions/user/${userId}`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
