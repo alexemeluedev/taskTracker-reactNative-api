@@ -30,7 +30,10 @@ export default function Page() {
     useTransactions(user?.id);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
-  const [confirmDelete, setConfirmDelete] = useState({ visible: false, id: null });
+  const [confirmDelete, setConfirmDelete] = useState({
+    visible: false,
+    id: null,
+  });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -194,8 +197,15 @@ export default function Page() {
         title="Delete transaction"
         message="This action cannot be undone."
         buttons={[
-          { text: "Cancel", onPress: () => setConfirmDelete({ visible: false, id: null }) },
-          { text: "Delete", onPress: confirmDeleteAction, style: "destructive" },
+          {
+            text: "Cancel",
+            onPress: () => setConfirmDelete({ visible: false, id: null }),
+          },
+          {
+            text: "Delete",
+            onPress: confirmDeleteAction,
+            style: "destructive",
+          },
         ]}
         onClose={() => setConfirmDelete({ visible: false, id: null })}
       />

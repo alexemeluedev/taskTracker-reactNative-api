@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -41,25 +48,13 @@ export const CustomAlertModal = ({
       animationType="none"
       onRequestClose={onClose}
     >
-      <Pressable style={{ flex: 1, backgroundColor: "rgba(8, 15, 30, 0.55)" }} onPress={onClose}>
-        <View style={{ flex: 1, justifyContent: "center", padding: 24 }}>
-          <Animated.View style={[{
-            backgroundColor: COLORS.surface,
-            borderRadius: 22,
-            padding: 20,
-            borderWidth: 1,
-            borderColor: COLORS.border,
-          }, animatedStyle]}>
-            <Text style={{ fontSize: 18, fontWeight: "800", color: COLORS.text, marginBottom: 8 }}>
-              {title}
-            </Text>
-            {message ? (
-              <Text style={{ fontSize: 14, lineHeight: 20, color: COLORS.muted, marginBottom: 16 }}>
-                {message}
-              </Text>
-            ) : null}
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <View style={styles.container}>
+          <Animated.View style={[styles.dialog, animatedStyle]}>
+            <Text style={styles.title}>{title}</Text>
+            {message ? <Text style={styles.message}>{message}</Text> : null}
 
-            <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: 10 }}>
+            <View style={styles.buttonRow}>
               {buttons.map((button, index) => (
                 <TouchableOpacity
                   key={`${button.text}-${index}`}
@@ -67,16 +62,14 @@ export const CustomAlertModal = ({
                     button.onPress?.();
                     onClose?.();
                   }}
-                  style={{
-                    paddingHorizontal: 14,
-                    paddingVertical: 10,
-                    borderRadius: 999,
-                    backgroundColor: button.style === "destructive" ? COLORS.expense : COLORS.primary,
-                    minWidth: 88,
-                    alignItems: "center",
-                  }}
+                  style={[
+                    styles.button,
+                    button.style === "destructive"
+                      ? styles.buttonDestructive
+                      : styles.buttonPrimary,
+                  ]}
                 >
-                  <Text style={{ color: COLORS.white, fontWeight: "700" }}>{button.text}</Text>
+                  <Text style={styles.buttonText}>{button.text}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -86,3 +79,68 @@ export const CustomAlertModal = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(8, 15, 30, 0.6)",
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+  },
+  container: {
+    width: "100%",
+    maxWidth: 360,
+  },
+  dialog: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 18,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  message: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.muted,
+    marginBottom: 16,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 4,
+  },
+  button: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    minWidth: 88,
+    alignItems: "center",
+  },
+  buttonPrimary: {
+    backgroundColor: COLORS.primary,
+  },
+  buttonDestructive: {
+    backgroundColor: COLORS.expense,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+});

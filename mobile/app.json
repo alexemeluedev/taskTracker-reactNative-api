@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "NovaLedger",
+    "name": "Expense Tracker",
     "slug": "nova-ledger",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.alexemeluedev.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -33,10 +34,18 @@
           "contentFit": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "22509924-66ce-4475-abcc-bddf1428565b"
+      }
+    },
+    "owner": "alexemelue.dev"
   }
 }

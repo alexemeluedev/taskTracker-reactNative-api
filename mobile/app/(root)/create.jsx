@@ -287,7 +287,11 @@ const CreateScreen = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View entering={FadeInUp.duration(240)} exiting={FadeOutDown.duration(180)} style={styles.card}>
+          <Animated.View
+            entering={FadeInUp.duration(240)}
+            exiting={FadeOutDown.duration(180)}
+            style={styles.card}
+          >
             <View style={styles.quickEntryHeader}>
               <View>
                 <Text style={styles.quickEntryLabel}>Quick capture</Text>

@@ -160,7 +160,11 @@ export default function TransactionDetailPage() {
       </View>
 
       <ScrollView contentContainerStyle={styles.detailContent}>
-        <Animated.View entering={FadeInUp.duration(240)} exiting={FadeOutDown.duration(180)} style={styles.detailCard}>
+        <Animated.View
+          entering={FadeInUp.duration(240)}
+          exiting={FadeOutDown.duration(180)}
+          style={styles.detailCard}
+        >
           <View style={styles.detailIconContainer}>
             <Ionicons
               name={iconName}
